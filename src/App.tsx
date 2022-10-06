@@ -1,63 +1,108 @@
-import React, { useRef } from "react";
+import { match } from "assert";
+import React, { useRef, useState } from "react";
 import "./App.css";
 
 function App() {
-  const samplePrompt =
-    "This is a test ! that got longer lets see how it looks this is how it works le;s se 1232";
-  const promptArray = samplePrompt.split("");
+  const [prompt, setPrompt] = useState(
+    "This omething else to se how it workss is how it works le;s se 1232 "
+  );
   let numberWrong = 0;
-
+  let wordsCorrect = "";
+  let matches: boolean;
+  const promptArr = prompt.split(" ");
+  let indexOfCurrentWord = 0;
+  let finishedCurrentWord: boolean;
   const inputBox = useRef<HTMLInputElement>(null);
   const promptDisplay = useRef<HTMLHeadingElement>(null);
 
   function handleChange() {
-    const localPromptArray = [...promptArray];
-    let userString: string = "";
+    let userString = inputBox.current?.value;
+    let arrToCompare;
 
-    if (inputBox.current !== null) {
-      userString = inputBox.current["value"];
-      let matches: boolean;
+    //slices off a section of the prompt to compare the user input to
+    if (userString)
+      arrToCompare = prompt.slice(0, wordsCorrect.length + userString?.length);
 
-      let arrToCompare = samplePrompt.slice(0, userString.length);
+    //determines if the user input thus far matches the corresponding prompt section
+    arrToCompare === wordsCorrect + userString
+      ? (matches = true)
+      : (matches = false);
 
-      arrToCompare === userString ? (matches = true) : (matches = false);
+    //prevents spacebar from clearing the input box when the user input only partially matches the current word
+    userString?.trim() === promptArr[indexOfCurrentWord]
+      ? (finishedCurrentWord = true)
+      : (finishedCurrentWord = false);
 
-      switch (matches) {
-        case true:
-          numberWrong = 0;
-          if (promptDisplay.current) {
-            const promptReplacement = `<span style='color:rgb(34 197 94)'>${[
-              ...Array(userString),
-            ]}</span>${samplePrompt.slice(userString.length)}`;
+    switch (matches) {
+      case true:
+        // let promptReplacement;
+        // numberWrong = 0;
+        // if (promptDisplay.current) {
+        //   if (wordsCorrect === "") {
+        //     promptReplacement = `<span style='color:#22c55e'>${[
+        //       userString,
+        //     ]}</span>${prompt.slice(userString?.length)}`;
+        //   } else {
+        //     if (userString) {
+        //       promptReplacement = `<span style='color:#22c55e'>${[
+        //         wordsCorrect + userString,
+        //       ]}</span>${prompt.slice(
+        //         wordsCorrect.length + userString?.length
+        //       )}`;
+        //     }
+        //   }
+
+        //   if (promptReplacement)
+        //     promptDisplay.current.innerHTML = promptReplacement;
+        // }
+
+        let promptReplacement;
+        numberWrong = 0;
+        if (promptDisplay.current && userString) {
+            // if (userString) {
+              promptReplacement = `<span style='color:#22c55e'>${[
+                wordsCorrect + userString,
+              ]}</span>${prompt.slice(
+                wordsCorrect.length + userString.length
+              )}`;
+            // }
+          
+
+          if (promptReplacement)
             promptDisplay.current.innerHTML = promptReplacement;
+        }
 
-          }
+        break;
 
-          break;
+      case false:
+        numberWrong++;
 
-        case false:
-          numberWrong++;
+        if (promptDisplay.current && numberWrong === 1 && userString) {
+          const promptReplacement = promptDisplay.current.innerHTML.replace(
+            "</span",
+            '</span><span style="color:red"'
+          );
 
-          if (promptDisplay.current && numberWrong === 1) {
-            const promptReplacement = `<span style='color:rgb(34 197 94)'>${[
-              samplePrompt.slice(0, userString.length - 1),
-            ]}</span><span style='color:red'>${samplePrompt.slice(
-              userString.length -1
-            )}</span>`;
-            promptDisplay.current.innerHTML = promptReplacement;
-
-            console.log(promptReplacement)
-          }
-          break;
-      }
+          promptDisplay.current.innerHTML = promptReplacement;
+        }
+        break;
     }
+
+    document.body.onkeydown = function (e) {
+      if (e.code === "Space" && matches && finishedCurrentWord) {
+        wordsCorrect += inputBox.current?.value;
+        if (inputBox.current) inputBox.current.value = "";
+
+        indexOfCurrentWord++;
+      }
+    };
   }
 
   return (
     <div>
       <div className="flex flex-col gap-8 items-center justify-center h-screen bg-slate-500 text-5xl">
         <h1 ref={promptDisplay} className="text-gray-50">
-          {samplePrompt}
+          {prompt}
         </h1>
         <input type="text" ref={inputBox} onChange={() => handleChange()} />
       </div>
