@@ -1,4 +1,3 @@
-import { match } from "assert";
 import React, { useRef, useState } from "react";
 import "./App.css";
 
@@ -24,14 +23,10 @@ function App() {
       arrToCompare = prompt.slice(0, wordsCorrect.length + userString?.length);
 
     //determines if the user input thus far matches the corresponding prompt section
-    arrToCompare === wordsCorrect + userString
-      ? (matches = true)
-      : (matches = false);
+    matches = (arrToCompare === wordsCorrect + userString)
 
     //prevents spacebar from clearing the input box when the user input only partially matches the current word
-    userString?.trim() === promptArr[indexOfCurrentWord]
-      ? (finishedCurrentWord = true)
-      : (finishedCurrentWord = false);
+    finishedCurrentWord = (userString?.trim() === promptArr[indexOfCurrentWord])
 
     //adds the green color to the prompt if the user input matches, adds the red color if user input does not match the prompt
     switch (matches) {
@@ -62,7 +57,7 @@ function App() {
     }
 
     //clears the input box when the conditions are met and the user presses spacebar
-    document.body.onkeydown = (e) => {
+    document.body.onkeyup = (e) => {
       if (
         e.code === "Space" &&
         matches &&
