@@ -33,43 +33,16 @@ function App() {
       ? (finishedCurrentWord = true)
       : (finishedCurrentWord = false);
 
+    //adds the green color to the prompt if the user input matches, adds the red color if user input does not match the prompt
     switch (matches) {
       case true:
-        // let promptReplacement;
-        // numberWrong = 0;
-        // if (promptDisplay.current) {
-        //   if (wordsCorrect === "") {
-        //     promptReplacement = `<span style='color:#22c55e'>${[
-        //       userString,
-        //     ]}</span>${prompt.slice(userString?.length)}`;
-        //   } else {
-        //     if (userString) {
-        //       promptReplacement = `<span style='color:#22c55e'>${[
-        //         wordsCorrect + userString,
-        //       ]}</span>${prompt.slice(
-        //         wordsCorrect.length + userString?.length
-        //       )}`;
-        //     }
-        //   }
-
-        //   if (promptReplacement)
-        //     promptDisplay.current.innerHTML = promptReplacement;
-        // }
-
-        let promptReplacement;
         numberWrong = 0;
         if (promptDisplay.current && userString) {
-            // if (userString) {
-              promptReplacement = `<span style='color:#22c55e'>${[
-                wordsCorrect + userString,
-              ]}</span>${prompt.slice(
-                wordsCorrect.length + userString.length
-              )}`;
-            // }
-          
+          const greenPrompt = `<span style='color:#22c55e'>${[
+            wordsCorrect + userString,
+          ]}</span>${prompt.slice(wordsCorrect.length + userString.length)}`;
 
-          if (promptReplacement)
-            promptDisplay.current.innerHTML = promptReplacement;
+          if (greenPrompt) promptDisplay.current.innerHTML = greenPrompt;
         }
 
         break;
@@ -78,20 +51,26 @@ function App() {
         numberWrong++;
 
         if (promptDisplay.current && numberWrong === 1 && userString) {
-          const promptReplacement = promptDisplay.current.innerHTML.replace(
+          const redPrompt = promptDisplay.current.innerHTML.replace(
             "</span",
             '</span><span style="color:red"'
           );
 
-          promptDisplay.current.innerHTML = promptReplacement;
+          promptDisplay.current.innerHTML = redPrompt;
         }
         break;
     }
 
-    document.body.onkeydown = function (e) {
-      if (e.code === "Space" && matches && finishedCurrentWord) {
-        wordsCorrect += inputBox.current?.value;
-        if (inputBox.current) inputBox.current.value = "";
+    //clears the input box when the conditions are met and the user presses spacebar
+    document.body.onkeydown = (e) => {
+      if (
+        e.code === "Space" &&
+        matches &&
+        finishedCurrentWord &&
+        inputBox.current
+      ) {
+        wordsCorrect += inputBox.current.value;
+        inputBox.current.value = "";
 
         indexOfCurrentWord++;
       }
