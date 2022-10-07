@@ -1,6 +1,10 @@
-import React, { useRef, useState } from "react";
+import React, { ReactElement, useRef, useState } from "react";
 import "./App.css";
 import { prompts } from "./prompts";
+import { DisplayPrompt} from "./components/DisplayPrompt";
+import { InputBox } from "./components/InputBox";
+import { NewPromptBtn } from "./components/NewPromptBtn";
+import { DifficultySelector } from "./components/DifficultySelector";
 
 function App() {
   const [prompt, setPrompt] = useState("Feel free to warm up !");
@@ -110,34 +114,18 @@ function App() {
     <div>
       <div className="flex flex-col gap-8 items-center justify-center h-screen bg-slate-800 text-5xl p-8">
         <div className="flex flex-col gap-8 p-16 bg-slate-600">
-          <h1
-            ref={promptDisplay}
-            className="text-gray-50 max-w-6xl leading-tight"
-          >
-            {prompt}
-          </h1>
-          <h1>{promptAuthor}</h1>
-
-          <input
-            type="text"
-            ref={inputBox}
-            onChange={() => handleChange()}
-            className="w-full max-w-4xl"
+          <DisplayPrompt
+            promptDisplay={promptDisplay}
+            prompt={prompt}
+            promptAuthor={promptAuthor}
           />
 
-          <button
-            onClick={() => getPrompt()}
-            className="bg-slate-200 p-4 max-w-lg mx-auto hover:bg-amber-300"
-          >
-            New Quote
-          </button>
+          <InputBox inputBox={inputBox} handleChange={handleChange} />
 
-          <label htmlFor="difficulty">Choose a difficulty : </label>
-          <select ref={difficultySelector} name="difficulty" id="difficulty">
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
+          <DifficultySelector difficultySelector={difficultySelector} />
+
+          <NewPromptBtn getPrompt={getPrompt} />
+
         </div>
       </div>
     </div>
