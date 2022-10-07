@@ -10,7 +10,7 @@ function InputBox ( {inputBox, handleChange}:InputBoxProps ){
             type="text"
             ref={inputBox}
             onChange={() => handleChange()}
-            className="w-full max-w-4xl"
+            className="w-full max-w-sm mx-auto"
           />
     )
 

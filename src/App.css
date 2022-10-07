@@ -1,3 +1,8 @@
-.green-text{
-    color: green ;
+body{
+    font-family: 'Roboto', sans-serif;
+    background: #1e293b;
+    display: flex;
+    height: 100vh;
+    align-items: center;
+    justify-content: center;
 }

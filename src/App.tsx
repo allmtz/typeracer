@@ -7,8 +7,8 @@ import { NewPromptBtn } from "./components/NewPromptBtn";
 import { DifficultySelector } from "./components/DifficultySelector";
 
 function App() {
-  const [prompt, setPrompt] = useState("Feel free to warm up !");
-  const [promptAuthor, setAuthor] = useState("");
+  const [prompt, setPrompt] = useState("Warm up by matching this text in the box below or go ahead and load a prompt");
+  const [promptAuthor, setAuthor] = useState("Allan");
 
   let numberWrong = 0;
   let wordsCorrect = "";
@@ -112,8 +112,7 @@ function App() {
 
   return (
     <div>
-      <div className="flex flex-col gap-8 items-center justify-center h-screen bg-slate-800 text-5xl p-8">
-        <div className="flex flex-col gap-8 p-16 bg-slate-600">
+        <div className="flex flex-col gap-8 p-9 bg-slate-600 w-screen max-w-3xl text-3xl sm:text-xl sm:px-4">
           <DisplayPrompt
             promptDisplay={promptDisplay}
             prompt={prompt}
@@ -128,7 +127,6 @@ function App() {
 
         </div>
       </div>
-    </div>
   );
 }
 

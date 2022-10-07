@@ -4,14 +4,14 @@ interface DifficultySelectorProps{
 
 function DifficultySelector({difficultySelector}:DifficultySelectorProps){
     return(
-        <>
-        <label htmlFor="difficulty">Choose a difficulty : </label>
-          <select ref={difficultySelector} name="difficulty" id="difficulty">
+        <div className="flex flex-row gap-4 items-center justify-center">
+        <label htmlFor="difficulty">Difficulty :</label>
+          <select ref={difficultySelector} name="difficulty" id="difficulty" className="w-min px-2">
             <option value="easy">Easy</option>
             <option value="medium">Medium</option>
             <option value="hard">Hard</option>
           </select>
-          </>
+          </div>
     )
 }
 

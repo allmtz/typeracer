@@ -15,7 +15,7 @@ interface DiplayPromptProps{
           >
             {prompt}
           </h1>
-          <h1>{promptAuthor}</h1> 
+          <h1 className="mx-auto w-max mt-8">-{promptAuthor}</h1> 
       </div>
     )
   }
