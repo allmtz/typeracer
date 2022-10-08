@@ -1,13 +1,15 @@
 import React, { ReactElement, useRef, useState } from "react";
 import "./App.css";
 import { prompts } from "./prompts";
-import { DisplayPrompt} from "./components/DisplayPrompt";
+import { DisplayPrompt } from "./components/DisplayPrompt";
 import { InputBox } from "./components/InputBox";
 import { NewPromptBtn } from "./components/NewPromptBtn";
 import { DifficultySelector } from "./components/DifficultySelector";
 
 function App() {
-  const [prompt, setPrompt] = useState("Warm up by matching this text in the box below or go ahead and load a prompt");
+  const [prompt, setPrompt] = useState(
+    "Warm up by matching this text in the box below or go ahead and load a prompt"
+  );
   const [promptAuthor, setAuthor] = useState("Allan");
 
   let numberWrong = 0;
@@ -23,17 +25,18 @@ function App() {
 
   function handleChange() {
     let userString = inputBox.current?.value;
-    let arrToCompare;
+    let arrToCompare: null | string = null;
 
     //slices off a section of the prompt to compare the user input to
     if (userString)
       arrToCompare = prompt.slice(0, wordsCorrect.length + userString?.length);
 
     //determines if the user input thus far matches the corresponding prompt section
-    matches = arrToCompare === wordsCorrect + userString;
+    matches = arrToCompare?.trim() === (wordsCorrect + userString).trim();
 
     //prevents spacebar from clearing the input box when the user input only partially matches the current word
-    finishedCurrentWord = userString?.trim() === promptArr[indexOfCurrentWord];
+    finishedCurrentWord =
+      userString?.trim() === promptArr[indexOfCurrentWord].trim();
 
     //adds the green color to the prompt if the user input matches, adds the red color if user input does not match the prompt
     switch (matches) {
@@ -51,12 +54,19 @@ function App() {
 
       case false:
         numberWrong++;
-
-        if (promptDisplay.current && numberWrong === 1 && userString) {
-          const redPrompt = promptDisplay.current.innerHTML.replace(
-            "</span",
-            '</span><span style="color:red"'
-          );
+        let redPrompt;
+        if (promptDisplay.current && numberWrong !== 0) {
+          if (userString?.length !== 0) {
+            redPrompt = promptDisplay.current.innerHTML.replace(
+              "</span>",
+              `<span style='color:red'>`
+            );
+          } else {
+            redPrompt = promptDisplay.current.innerHTML.replace(
+              `${promptArr[indexOfCurrentWord][0]}</span>`,
+              `<span style='color:red'>${promptArr[indexOfCurrentWord][0]}`
+            );
+          }
 
           promptDisplay.current.innerHTML = redPrompt;
         }
@@ -64,12 +74,13 @@ function App() {
     }
 
     //clears the input box when the conditions are met and the user presses spacebar
-    document.body.onkeyup = (e) => {
+    document.body.onkeydown = (e) => {
       if (
         e.code === "Space" &&
         matches &&
         finishedCurrentWord &&
-        inputBox.current
+        inputBox.current &&
+        inputBox.current?.value !== ""
       ) {
         wordsCorrect += inputBox.current.value;
         inputBox.current.value = "";
@@ -112,21 +123,20 @@ function App() {
 
   return (
     <div>
-        <div className="flex flex-col gap-8 p-9 bg-slate-600 w-screen max-w-3xl text-3xl sm:text-xl sm:px-4">
-          <DisplayPrompt
-            promptDisplay={promptDisplay}
-            prompt={prompt}
-            promptAuthor={promptAuthor}
-          />
+      <div className="flex flex-col gap-8 p-9 bg-slate-600 w-screen max-w-3xl text-3xl sm:text-xl sm:px-4">
+        <DisplayPrompt
+          promptDisplay={promptDisplay}
+          prompt={prompt}
+          promptAuthor={promptAuthor}
+        />
 
-          <InputBox inputBox={inputBox} handleChange={handleChange} />
+        <InputBox inputBox={inputBox} handleChange={handleChange} />
 
-          <DifficultySelector difficultySelector={difficultySelector} />
+        <DifficultySelector difficultySelector={difficultySelector} />
 
-          <NewPromptBtn getPrompt={getPrompt} />
-
-        </div>
+        <NewPromptBtn getPrompt={getPrompt} />
       </div>
+    </div>
   );
 }
 
