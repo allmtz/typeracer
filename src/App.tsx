@@ -19,13 +19,28 @@ function App() {
   let matches: boolean;
   let finishedCurrentWord: boolean;
   let randomPromptsIndex;
+  let playing = false
+  let startTime:Date
+  let secondsElapsed
+  let endTime:Date
+  let arrToCompare: null | string = null;
+
   const inputBox = useRef<HTMLInputElement>(null);
   const promptDisplay = useRef<HTMLHeadingElement>(null);
   const difficultySelector = useRef<HTMLSelectElement>(null);
 
+  let wordsCompleted = 0
+
   function handleChange() {
     let userString = inputBox.current?.value;
-    let arrToCompare: null | string = null;
+
+    if(!playing){
+      playing = true
+
+      startTime = new Date()
+
+      console.log('started playing: ',startTime)
+    }
 
     //slices off a section of the prompt to compare the user input to
     if (userString)
@@ -38,6 +53,16 @@ function App() {
     finishedCurrentWord =
       userString?.trim() === promptArr[indexOfCurrentWord].trim();
 
+    if( wordsCorrect + userString === prompt && userString?.length !== 0 ){ 
+      // playing = false
+      endTime = new Date()  
+
+      secondsElapsed = Math.abs(Number(endTime) - Number(startTime)) / 1000
+      const wpm = ((wordsCompleted / secondsElapsed) * 60).toFixed(0)
+      
+      console.log('you finished: ', endTime, `${secondsElapsed}s`, `${wpm} wpm`)
+    
+    }
     //adds the green color to the prompt if the user input matches, adds the red color if user input does not match the prompt
     switch (matches) {
       case true:
@@ -85,7 +110,14 @@ function App() {
         wordsCorrect += inputBox.current.value;
         inputBox.current.value = "";
 
-        indexOfCurrentWord++;
+        wordsCompleted++
+
+        if(wordsCorrect === prompt){
+          return
+        }
+        else{
+          indexOfCurrentWord++
+        }
       }
     };
   }
@@ -123,6 +155,9 @@ function App() {
 
   return (
     <div>
+
+      <div className="text-white text-end pr-4"> wpm goes here</div>
+
       <div className="flex flex-col gap-8 p-9 bg-slate-600 w-screen max-w-3xl text-3xl sm:text-xl sm:px-4">
         <DisplayPrompt
           promptDisplay={promptDisplay}
