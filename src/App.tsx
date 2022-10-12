@@ -1,4 +1,4 @@
-import React, { ReactElement, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import "./App.css";
 import { prompts } from "./prompts";
 import { DisplayPrompt } from "./components/DisplayPrompt";
@@ -8,38 +8,45 @@ import { DifficultySelector } from "./components/DifficultySelector";
 
 function App() {
   const [prompt, setPrompt] = useState(
-    "Warm up by matching this text in the box below or go ahead and load a prompt"
+  'Warm up by matching this text in the box below or select a difficulty and click "New Prompt"'
   );
   const [promptAuthor, setAuthor] = useState("Allan");
+  const [indexOfCurrentWord, setIndexOfCurrentWord] = useState(0)
+  const [wpm, setWpm] = useState('0')
+  const [wordsCorrect,setWordsCorrect] = useState('')
+  const [placeholder, setPlaceholder] = useState('')
+  const wordsCompleted = useRef(0)
+  const secondsElapsed = useRef(0)
 
   let numberWrong = 0;
-  let wordsCorrect = "";
   const promptArr = prompt.split(" ");
-  let indexOfCurrentWord = 0;
   let matches: boolean;
   let finishedCurrentWord: boolean;
   let randomPromptsIndex;
   let playing = false
   let startTime:Date
-  let secondsElapsed
-  let endTime:Date
   let arrToCompare: null | string = null;
 
   const inputBox = useRef<HTMLInputElement>(null);
   const promptDisplay = useRef<HTMLHeadingElement>(null);
   const difficultySelector = useRef<HTMLSelectElement>(null);
 
-  let wordsCompleted = 0
 
   function handleChange() {
-    let userString = inputBox.current?.value;
+    // changes the input box display if the prompt is matched 
+    if(wordsCorrect === prompt){
+      inputBox.current!.value = ''
+      inputBox.current!.readOnly = true
+      setPlaceholder('Nice job! Try a different prompt?')
+      return
+    }
+    else{
+      let userString = inputBox.current?.value;
 
     if(!playing){
       playing = true
 
       startTime = new Date()
-
-      console.log('started playing: ',startTime)
     }
 
     //slices off a section of the prompt to compare the user input to
@@ -52,17 +59,6 @@ function App() {
     //prevents spacebar from clearing the input box when the user input only partially matches the current word
     finishedCurrentWord =
       userString?.trim() === promptArr[indexOfCurrentWord].trim();
-
-    if( wordsCorrect + userString === prompt && userString?.length !== 0 ){ 
-      // playing = false
-      endTime = new Date()  
-
-      secondsElapsed = Math.abs(Number(endTime) - Number(startTime)) / 1000
-      const wpm = ((wordsCompleted / secondsElapsed) * 60).toFixed(0)
-      
-      console.log('you finished: ', endTime, `${secondsElapsed}s`, `${wpm} wpm`)
-    
-    }
     //adds the green color to the prompt if the user input matches, adds the red color if user input does not match the prompt
     switch (matches) {
       case true:
@@ -98,28 +94,37 @@ function App() {
         break;
     }
 
-    //clears the input box when the conditions are met and the user presses spacebar
+    //clears the input box when the conditions are met and the user presses spacebar, adds the word that was cleared to the wordsCorret string, calculates the current wpm based on the words completed and the time elapsed
     document.body.onkeydown = (e) => {
       if (
         e.code === "Space" &&
         matches &&
         finishedCurrentWord &&
         inputBox.current &&
-        inputBox.current?.value !== ""
+        inputBox.current?.value.trim().length !== 0
       ) {
-        wordsCorrect += inputBox.current.value;
+        // indexOfCurrentWord is used to keep track of what word the user needs to match 
+          setIndexOfCurrentWord(indexOfCurrentWord + 1)
+
+
+        setWordsCorrect( wordsCorrect + inputBox.current.value)
+
         inputBox.current.value = "";
 
-        wordsCompleted++
+      wordsCompleted.current++
 
-        if(wordsCorrect === prompt){
-          return
-        }
-        else{
-          indexOfCurrentWord++
-        }
+       
+      const currentTime = new Date()  
+
+      secondsElapsed.current = secondsElapsed.current + Math.abs(Number(currentTime) - Number(startTime)) / 1000
+      const wpm = String(( (wordsCompleted.current / secondsElapsed.current) * 60 ).toFixed(0))
+      
+      setWpm(wpm)
+    
       }
+      return
     };
+    }   
   }
 
   //used to randomly select a prompt
@@ -131,6 +136,16 @@ function App() {
   function getPrompt() {
     let difficulty = difficultySelector.current?.value;
     if (inputBox.current) inputBox.current.value = "";
+
+    // reseting all the variables
+    setWordsCorrect('')
+    setIndexOfCurrentWord(0)
+    setWpm('0')
+    secondsElapsed.current = 0
+    wordsCompleted.current = 0
+    playing = false
+    setPlaceholder('')
+    inputBox.current!.readOnly = false
 
     switch (difficulty) {
       case "easy":
@@ -151,12 +166,15 @@ function App() {
         setAuthor(prompts.hard[randomPromptsIndex].author);
         break;
     }
+    //used to get rid of any text color on the current prompt in case it is randomly selected to be displayed again
+    promptDisplay.current!.innerHTML = prompt 
+
   }
 
   return (
     <div>
 
-      <div className="text-white text-end pr-4"> wpm goes here</div>
+      <div className="text-white text-xl text-end pr-4" >{wpm} wpm</div>
 
       <div className="flex flex-col gap-8 p-9 bg-slate-600 w-screen max-w-3xl text-3xl sm:text-xl sm:px-4">
         <DisplayPrompt
@@ -165,7 +183,7 @@ function App() {
           promptAuthor={promptAuthor}
         />
 
-        <InputBox inputBox={inputBox} handleChange={handleChange} />
+        <InputBox inputBox={inputBox} handleChange={handleChange} placeholder = {placeholder} />
 
         <DifficultySelector difficultySelector={difficultySelector} />
 
